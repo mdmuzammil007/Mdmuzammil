@@ -1,0 +1,44 @@
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract InvestmentFund {
+    address public manager;
+    mapping(address => uint) private investors;
+    mapping(address => uint) private investmentTimestamp;
+
+    uint constant MINIMUM_TENURE = 5;
+    uint constant MINIMUM_SIP_AMOUNT = 5000;
+
+    constructor() {
+        manager = msg.sender;
+    }
+
+    function mutualFund(uint tenure, uint sip) external {
+        require(sip >= MINIMUM_SIP_AMOUNT, "Minimum SIP amount is 5000 ethers");
+        assert(tenure >= MINIMUM_TENURE);
+
+       
+        assert(block.timestamp - investmentTimestamp[msg.sender] >= tenure);
+
+        investors[msg.sender] += sip;
+        investmentTimestamp[msg.sender] = block.timestamp;
+    }
+
+    function withdraw(uint tenure) external {
+      
+        if (tenure < 10) {
+            revert("Minimum tenure for withdrawal is 10 years");
+        }
+
+        uint amount = investors[manager];
+        require(amount > 0, "No funds available for withdrawal");
+
+       
+        investors[manager] = 0;
+    }
+
+    function checkBalance() external view returns (uint) {
+        return address(this).balance;
+    }
+}
